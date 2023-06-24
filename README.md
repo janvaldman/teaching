@@ -1,1 +1,1 @@
-# skriptaDNM
+# Doplňkové kódy ke skriptům
