@@ -1,0 +1,12 @@
+n = 20; 
+h = 1/(n + 1);
+A = (1/h^2)*SparseArray[{{i_,i_}:>2,{i_,j_}:> -1 /; Abs[i-j]==1}, {n,n}];
+x = Table[(i*h), {i, 1, n}];
+b = Table[(x[[i]])^2, {i, 1, n}];
+u = LinearSolve[A, b];
+t = Table[{x[[i]], u[[i]]}, {i, 1, n}];
+p1 = ListPlot[t, PlotMarkers -> Automatic, PlotMarkers -> Automatic];
+uExact[y_] = (y - y^4)/12;
+p2 = Plot[uExact[x], {x, 0, 1}, PlotStyle -> Red];
+Show[p1, p2, PlotRange -> All]
+e = N[Max[Abs[u - uExact[x]]]]
