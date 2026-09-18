@@ -8,7 +8,7 @@ u = A \ b;
 scatter(x,u,'b','MarkerFaceColor','b')
 uExact=@(y)(y-y.^4)/12;
 hold on
-xx=linspace(0,1)
+xx=linspace(0,1);
 plot(xx,uExact(xx),'r-')
 hold off
 e=max(abs(u-uExact(x)))
