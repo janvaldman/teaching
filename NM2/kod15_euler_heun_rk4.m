@@ -23,7 +23,7 @@ for j = 1:numel(nAll)
     if j == 1                           % graf reseni pro nejmensi n
         figure(1)
         xx = linspace(x0, xMax);
-        plot(xx, yExact(xx), 'k-', x, yE, 'o-', x, yH, 's-', x, yR, '^-')
+        plot(xx, yExact(xx), 'k-', x, yE, 'o-', x, yH, 's-', x, yR, '^-', 'LineWidth', 1.5)
         grid on; xlabel('x'); ylabel('y')
         legend('presne reseni', 'Euler', 'Heun', 'RK4', 'Location', 'northwest')
         title(sprintf('Aproximace reseni pro n = %d', n))
@@ -49,8 +49,10 @@ fprintf('(u RK4 je chyba pro nejmensi h uz na urovni zaokrouhlovacich chyb)\n\n'
 
 % Graf chyb v logaritmickych souradnicich
 figure(2)
-loglog(hAll, e(:,1), 'o-', hAll, e(:,2), 's-', hAll(1:3), e(1:3,3), '^-')
-set(gca, 'XDir', 'reverse'); grid on
+loglog(hAll, e(:,1), 'o-', hAll, e(:,2), 's-', hAll(1:3), e(1:3,3), '^-', ...
+       'LineWidth', 1.5, 'MarkerSize', 7)
+set(gca, 'XDir', 'reverse', 'YTick', 10.^(-12:3:0)); grid on
+xlim([1e-4 1]); ylim([1e-13 1])
 xlabel('h'); ylabel('chyba v x_{max}')
 legend('Euler (p=1)', 'Heun (p=2)', 'RK4 (p=4)', 'Location', 'southwest')
 title('Chyba v koncovem bode')
