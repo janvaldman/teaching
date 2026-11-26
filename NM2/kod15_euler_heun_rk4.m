@@ -1,86 +1,56 @@
-%% Explicitni Eulerova, Heunova a Rungeova-Kuttova metoda (RK4)
-% Modelova uloha:  y(x)*y'(x) = 2*x^4,  y(0) = 1,  x in [0, 2]
-% tj. y' = f(x,y) = 2*x^4/y, presne reseni y(x) = sqrt(4*x^5/5 + 1).
-% Pro ruzne pocty kroku n vypiseme chybu v koncovem bode,
-% odhadneme rad konvergence a chyby vykreslime v log-log grafu.
-clear; close all; clc;
+% Explicitni Euler, Heun a RK4 pro ulohu y*y' = 2*x^4, y(0) = 1 na [0,2]
+f = @(x,y) 2*x.^4./y;                   % prava strana y' = f(x,y)
+yExact = @(x) sqrt(4*x.^5/5 + 1);       % presne reseni
+x0 = 0; y0 = 1; xMax = 2;               % pocatecni podminka a konec intervalu
+nAll = [10 100 1000 10000];             % pocty kroku
 
-f      = @(x,y) 2*x.^4./y;            % prava strana
-yExact = @(x) sqrt(4*x.^5/5 + 1);     % presne reseni
-x0 = 0; y0 = 1; xMax = 2;             % pocatecni podminka a konec intervalu
-allN = [10 100 1000 10000];           % pocty kroku
-
-metody = {@euler, @heun, @rk4};
-nazvy  = {'explicitni Euler', 'Heun', 'RK4'};
-chyby  = zeros(numel(metody), numel(allN));
-
-for m = 1:numel(metody)
-    fprintf('\n%s\n', nazvy{m});
-    for j = 1:numel(allN)
-        [x, y] = metody{m}(f, x0, xMax, y0, allN(j));
-        h = x(2) - x(1);
-        chyby(m,j) = abs(y(end) - yExact(xMax));
-        fprintf('   h=%8.2e,  y_h(%g)=%.6f,  e=%10.4e', h, xMax, y(end), chyby(m,j));
-        if j > 1                       % experimentalni rad konvergence
-            p = log(chyby(m,j-1)/chyby(m,j)) / log(allN(j)/allN(j-1));
-            fprintf(',  p=%5.2f', p);
-        end
-        fprintf('\n');
-    end
-end
-
-% Pozn.: u RK4 je chyba pro n = 10000 uz na urovni zaokrouhlovacich chyb
-% (presnost typu double), proto tam odhad radu p ztraci smysl.
-
-% Log-log graf chyb (body na urovni zaokrouhlovacich chyb vynechame)
-h = (xMax - x0)./allN;
-figure;
-for m = 1:numel(metody)
-    ok = chyby(m,:) > 1e-13;
-    loglog(h(ok), chyby(m,ok), '-o', 'LineWidth', 1.5); hold on;
-end
-hold off; grid on; set(gca, 'XDir', 'reverse');
-xlabel('h'); ylabel('e(x_{max})');
-legend('explicitni Euler (p=1)', 'Heun (p=2)', 'RK4 (p=4)', 'Location', 'southwest');
-title('Chyba v koncovem bode');
-
-% Aproximace pro n = 10 a presne reseni
-figure;
-[xE, yE] = euler(f, x0, xMax, y0, 10);
-[xH, yH] = heun(f, x0, xMax, y0, 10);
-[xR, yR] = rk4(f, x0, xMax, y0, 10);
-xx = linspace(x0, xMax, 200);
-plot(xx, yExact(xx), 'k-', xE, yE, 'o-', xH, yH, 's-', xR, yR, '^-');
-legend('presne reseni', 'explicitni Euler', 'Heun', 'RK4', 'Location', 'northwest');
-xlabel('x'); ylabel('y'); title('Aproximace pro n = 10'); grid on;
-
-%% Jednotlive metody
-function [x, y] = euler(f, x0, xMax, y0, n)      % explicitni Eulerova metoda
-    x = linspace(x0, xMax, n+1)'; h = x(2) - x(1);
-    y = zeros(n+1, 1); y(1) = y0;
+e = zeros(numel(nAll),3);              % chyby v bode xMax: Euler, Heun, RK4
+for j = 1:numel(nAll)
+    n = nAll(j); h = (xMax - x0)/n; x = x0 + h*(0:n);
+    yE = y0*ones(1,n+1); yH = yE; yR = yE;  % aproximace v uzlech x
     for i = 1:n
-        y(i+1) = y(i) + h*f(x(i), y(i));
+        yE(i+1) = yE(i) + h*f(x(i),yE(i));                    % explicitni Euler
+
+        k1 = f(x(i),yH(i)); k2 = f(x(i+1),yH(i) + h*k1);      % Heun
+        yH(i+1) = yH(i) + h/2*(k1 + k2);
+
+        k1 = f(x(i),yR(i));           k2 = f(x(i)+h/2,yR(i) + h/2*k1);   % RK4
+        k3 = f(x(i)+h/2,yR(i) + h/2*k2); k4 = f(x(i+1),yR(i) + h*k3);
+        yR(i+1) = yR(i) + h/6*(k1 + 2*k2 + 2*k3 + k4);
+    end
+    e(j,:) = abs([yE(end) yH(end) yR(end)] - yExact(xMax));
+
+    if j == 1                           % graf reseni pro nejmensi n
+        figure(1)
+        xx = linspace(x0, xMax);
+        plot(xx, yExact(xx), 'k-', x, yE, 'o-', x, yH, 's-', x, yR, '^-')
+        grid on; xlabel('x'); ylabel('y')
+        legend('presne reseni', 'Euler', 'Heun', 'RK4', 'Location', 'northwest')
+        title(sprintf('Aproximace reseni pro n = %d', n))
     end
 end
 
-function [x, y] = heun(f, x0, xMax, y0, n)       % Heunova metoda
-    x = linspace(x0, xMax, n+1)'; h = x(2) - x(1);
-    y = zeros(n+1, 1); y(1) = y0;
-    for i = 1:n
-        k1 = f(x(i), y(i));
-        k2 = f(x(i+1), y(i) + h*k1);
-        y(i+1) = y(i) + h/2*(k1 + k2);
-    end
-end
+% Rad konvergence: krok se zmensuje 10x, proto p = log10(e_h/e_{h/10})
+p = log10(e(1:end-1,:)./e(2:end,:));
 
-function [x, y] = rk4(f, x0, xMax, y0, n)        % Rungeova-Kuttova metoda 4. radu
-    x = linspace(x0, xMax, n+1)'; h = x(2) - x(1);
-    y = zeros(n+1, 1); y(1) = y0;
-    for i = 1:n
-        k1 = f(x(i),       y(i));
-        k2 = f(x(i) + h/2, y(i) + h/2*k1);
-        k3 = f(x(i) + h/2, y(i) + h/2*k2);
-        k4 = f(x(i) + h,   y(i) + h*k3);
-        y(i+1) = y(i) + h/6*(k1 + 2*k2 + 2*k3 + k4);
+% Vypis tabulky
+hAll = (xMax - x0)./nAll;
+fprintf('\n  %7s |  %9s  %5s |  %9s  %5s |  %9s  %5s\n', 'h', 'Euler', 'p', 'Heun', 'p', 'RK4', 'p');
+fprintf('%s\n', repmat('-', 1, 66));
+for j = 1:numel(nAll)
+    fprintf('  %7.1e', hAll(j));
+    for m = 1:3
+        if j == 1, pStr = '-'; else, pStr = sprintf('%.2f', p(j-1,m)); end
+        fprintf(' |  %9.2e  %5s', e(j,m), pStr);
     end
+    fprintf('\n');
 end
+fprintf('(u RK4 je chyba pro nejmensi h uz na urovni zaokrouhlovacich chyb)\n\n');
+
+% Graf chyb v logaritmickych souradnicich
+figure(2)
+loglog(hAll, e(:,1), 'o-', hAll, e(:,2), 's-', hAll(1:3), e(1:3,3), '^-')
+set(gca, 'XDir', 'reverse'); grid on
+xlabel('h'); ylabel('chyba v x_{max}')
+legend('Euler (p=1)', 'Heun (p=2)', 'RK4 (p=4)', 'Location', 'southwest')
+title('Chyba v koncovem bode')
