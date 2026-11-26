@@ -17,4 +17,4 @@ xx = linspace(0,1);
 plot(xx,uExact(xx),'r-')
 hold off
 
-error = max(abs(u-uExact(x)))   % Maximalni chyba
+chyba = max(abs(u-uExact(x)))   % Maximalni chyba
