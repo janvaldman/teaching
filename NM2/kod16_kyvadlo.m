@@ -43,13 +43,17 @@ fprintf('  %-33s = %.7f s\n', 'perioda z reseni RK4', T_num);
 fprintf('  %-33s = %.7f s\n', 'perioda presna (ellipke)', T_ex);
 fprintf('  %-33s = %.7f s\n\n', 'perioda malych kmitu T_0', T_0);
 
+% Linearizovane kyvadlo phi'' + (g/l)*phi = 0 se stejnymi pocatecnimi podminkami
+Om = sqrt(g/l);
+phiLin = y0(1)*cos(Om*t) + y0(2)/Om*sin(Om*t);
+
 figure(1)                               % uhel v case
-plot(t, Y(1,:), '-', t, Yref(:,1), '--', 'LineWidth', 1.5)
-grid on; xlabel('t'); ylabel('\phi(t)')
-legend('RK4', 'ode45', 'Location', 'southoutside', 'Orientation', 'horizontal')
+plot(t, Y(1,:), '-', t, Yref(:,1), '--', t, phiLin, ':', 'LineWidth', 1.5)
+grid on; xlabel('t [s]'); ylabel('\phi(t) [rad]')
+legend('RK4', 'ode45', 'linearizace', 'Location', 'southoutside', 'Orientation', 'horizontal')
 title('Uhel kyvadla')
 
 figure(2)                               % fazovy portret
 plot(Y(1,:), Y(2,:), 'LineWidth', 1.5)
-grid on; xlabel('\phi'); ylabel('\omega')
+grid on; xlabel('\phi [rad]'); ylabel('\omega [rad/s]')
 title('Fazovy portret')
