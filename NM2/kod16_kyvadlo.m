@@ -3,7 +3,7 @@
 %   phi' = omega,   omega' = -(g/l)*sin(phi)
 g = 9.81; l = 1;                        % tihove zrychleni, delka kyvadla
 F = @(t,y) [y(2); -(g/l)*sin(y(1))];    % prava strana soustavy y' = F(t,y)
-y0 = [pi/2; 1]; t0 = 0; tMax = 20;      % pocatecni podminka a konec intervalu
+y0 = [pi/2; 1]; t0 = 0; tMax = 2;      % pocatecni podminka a konec intervalu
 n = 2000; h = (tMax - t0)/n; t = t0 + h*(0:n);
 
 Y = zeros(2,n+1); Y(:,1) = y0;          % RK4 pro soustavu: sloupec Y(:,i) je stav v case t(i)
