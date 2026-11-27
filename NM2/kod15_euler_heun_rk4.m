@@ -58,6 +58,29 @@ for j = 1:numel(nAll)
 end
 fprintf('(u RK4 je chyba pro nejmensi h uz na urovni zaokrouhlovacich chyb)\n\n');
 
+% Srovnani pri stejne cene: 200 vyhodnoceni f
+% (Euler 1 vyhodnoceni/krok -> n = 200, Heun 2 -> n = 100, RK4 4 -> n = 50)
+nCena = [200 100 50]; eCena = zeros(1,3);
+for m = 1:3
+    n = nCena(m); h = (xMax - x0)/n; x = x0 + h*(0:n); y = y0;
+    for i = 1:n
+        k1 = f(x(i),y);
+        if m == 1                                   % Euler
+            y = y + h*k1;
+        elseif m == 2                               % Heun
+            k2 = f(x(i+1),y + h*k1); y = y + h/2*(k1 + k2);
+        else                                        % RK4
+            k2 = f(x(i)+h/2,y + h/2*k1); k3 = f(x(i)+h/2,y + h/2*k2);
+            k4 = f(x(i+1),y + h*k3); y = y + h/6*(k1 + 2*k2 + 2*k3 + k4);
+        end
+    end
+    eCena(m) = abs(y - yExact(xMax));
+end
+fprintf('  Stejna cena (200 vyhodnoceni f):\n');
+fprintf('    Euler  h = %5.3f   chyba = %9.2e\n', (xMax-x0)/nCena(1), eCena(1));
+fprintf('    Heun   h = %5.3f   chyba = %9.2e\n', (xMax-x0)/nCena(2), eCena(2));
+fprintf('    RK4    h = %5.3f   chyba = %9.2e\n\n', (xMax-x0)/nCena(3), eCena(3));
+
 % Graf chyb v logaritmickych souradnicich
 figure(3)
 loglog(hAll, e(:,1), 'o-', hAll, e(:,2), 's-', hAll(1:3), e(1:3,3), '^-', ...
