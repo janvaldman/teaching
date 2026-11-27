@@ -115,3 +115,13 @@ xlim([1e-4 1]); ylim([1e-13 1])
 xlabel('h'); ylabel('chyba v x_{max}')
 legend('Euler (p=1)', 'Heun (p=2)', 'RK4 (p=4)', 'Location', 'southwest')
 title('Chyba v koncovem bode')
+
+% Graf presnost-cena: chyba proti poctu vyhodnoceni f (Euler 1, Heun 2, RK4 4 na krok)
+figure(4)
+loglog(1*nAll, e(:,1), 'o-', 2*nAll, e(:,2), 's-', 4*nAll(1:3), e(1:3,3), '^-', ...
+       'LineWidth', 1.5, 'MarkerSize', 7)
+set(gca, 'YTick', 10.^(-12:3:0)); grid on
+ylim([1e-13 1])
+xlabel('pocet vyhodnoceni f'); ylabel('chyba v x_{max}')
+legend('Euler (p=1)', 'Heun (p=2)', 'RK4 (p=4)', 'Location', 'southwest')
+title('Presnost versus vypocetni cena')
