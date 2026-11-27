@@ -21,20 +21,22 @@ for j = 1:numel(nAll)
     e(j,:) = abs([yE(end) yH(end) yR(end)] - yExact(xMax));
 
     xx = linspace(x0, xMax);
-    if j == 1                           % n = 10: ulozime Eulera, srovnani metod
-        x10 = x; yE10 = yE;
-        figure(2)
+    if j == 1                           % obrazek 1: jen explicitni Euler (n = 10, pozdeji n = 100)
+        figure(1)
+        plot(xx, yExact(xx), 'k-', x, yE, 'o-', 'LineWidth', 1.5); hold on
+        grid on; xlabel('x'); ylabel('y')
+        title('Explicitni Euler')
+
+        figure(2)                       % obrazek 2: srovnani metod pro n = 10
         plot(xx, yExact(xx), 'k-', x, yE, 'o-', x, yH, 's-', x, yR, '^-', 'LineWidth', 1.5)
         grid on; xlabel('x'); ylabel('y')
         legend('presne reseni', 'Euler', 'Heun', 'RK4', 'Location', 'northwest')
         title(sprintf('Srovnani metod pro n = %d', n))
     end
-    if j == 2                           % n = 100: Euler pro dve delky kroku
+    if j == 2                           % do obrazku 1 pridame Eulera pro n = 100
         figure(1)
-        plot(xx, yExact(xx), 'k-', x10, yE10, 'o-', x, yE, '--', 'LineWidth', 1.5)
-        grid on; xlabel('x'); ylabel('y')
+        plot(x, yE, '--', 'LineWidth', 1.5); hold off
         legend('presne reseni', 'Euler, n = 10', 'Euler, n = 100', 'Location', 'northwest')
-        title('Explicitni Euler')
     end
 end
 
