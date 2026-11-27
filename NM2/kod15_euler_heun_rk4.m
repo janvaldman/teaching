@@ -20,13 +20,21 @@ for j = 1:numel(nAll)
     end
     e(j,:) = abs([yE(end) yH(end) yR(end)] - yExact(xMax));
 
-    if j == 1                           % graf reseni pro nejmensi n
-        figure(1)
-        xx = linspace(x0, xMax);
+    xx = linspace(x0, xMax);
+    if j == 1                           % n = 10: ulozime Eulera, srovnani metod
+        x10 = x; yE10 = yE;
+        figure(2)
         plot(xx, yExact(xx), 'k-', x, yE, 'o-', x, yH, 's-', x, yR, '^-', 'LineWidth', 1.5)
         grid on; xlabel('x'); ylabel('y')
         legend('presne reseni', 'Euler', 'Heun', 'RK4', 'Location', 'northwest')
-        title(sprintf('Aproximace reseni pro n = %d', n))
+        title(sprintf('Srovnani metod pro n = %d', n))
+    end
+    if j == 2                           % n = 100: Euler pro dve delky kroku
+        figure(1)
+        plot(xx, yExact(xx), 'k-', x10, yE10, 'o-', x, yE, '--', 'LineWidth', 1.5)
+        grid on; xlabel('x'); ylabel('y')
+        legend('presne reseni', 'Euler, n = 10', 'Euler, n = 100', 'Location', 'northwest')
+        title('Explicitni Euler')
     end
 end
 
@@ -48,7 +56,7 @@ end
 fprintf('(u RK4 je chyba pro nejmensi h uz na urovni zaokrouhlovacich chyb)\n\n');
 
 % Graf chyb v logaritmickych souradnicich
-figure(2)
+figure(3)
 loglog(hAll, e(:,1), 'o-', hAll, e(:,2), 's-', hAll(1:3), e(1:3,3), '^-', ...
        'LineWidth', 1.5, 'MarkerSize', 7)
 set(gca, 'XDir', 'reverse', 'YTick', 10.^(-12:3:0)); grid on
