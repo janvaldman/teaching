@@ -1,4 +1,5 @@
 % Explicitni Euler, Heun a RK4 pro ulohu y*y' = 2*x^4, y(0) = 1 na [0,2]
+close all
 f = @(x,y) 2*x.^4./y;                   % prava strana y' = f(x,y)
 yExact = @(x) sqrt(4*x.^5/5 + 1);       % presne reseni
 x0 = 0; y0 = 1; xMax = 2;               % pocatecni podminka a konec intervalu
