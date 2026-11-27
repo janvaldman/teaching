@@ -81,6 +81,31 @@ fprintf('    Euler  h = %5.3f   chyba = %9.2e\n', (xMax-x0)/nCena(1), eCena(1));
 fprintf('    Heun   h = %5.3f   chyba = %9.2e\n', (xMax-x0)/nCena(2), eCena(2));
 fprintf('    RK4    h = %5.3f   chyba = %9.2e\n\n', (xMax-x0)/nCena(3), eCena(3));
 
+% Odhad radu BEZ znalosti presneho reseni: tri vypocty s kroky h, h/2, h/4
+%   y_h - y_{h/2} ~ C h^p (1 - 2^(-p))  =>  p ~ log2(|y_h - y_{h/2}| / |y_{h/2} - y_{h/4}|)
+nOdh = [10 20 40];                      % h = 0.2, 0.1, 0.05
+yOdh = zeros(3,3);                      % radky: metody, sloupce: h, h/2, h/4
+for m = 1:3
+    for k = 1:3
+        n = nOdh(k); h = (xMax - x0)/n; x = x0 + h*(0:n); y = y0;
+        for i = 1:n
+            k1 = f(x(i),y);
+            if m == 1                                   % Euler
+                y = y + h*k1;
+            elseif m == 2                               % Heun
+                k2 = f(x(i+1),y + h*k1); y = y + h/2*(k1 + k2);
+            else                                        % RK4
+                k2 = f(x(i)+h/2,y + h/2*k1); k3 = f(x(i)+h/2,y + h/2*k2);
+                k4 = f(x(i+1),y + h*k3); y = y + h/6*(k1 + 2*k2 + 2*k3 + k4);
+            end
+        end
+        yOdh(m,k) = y;
+    end
+end
+pOdh = log2(abs(yOdh(:,1) - yOdh(:,2))./abs(yOdh(:,2) - yOdh(:,3)));
+fprintf('  Odhad radu bez presneho reseni (h = 0.2, 0.1, 0.05):\n');
+fprintf('    Euler p = %.2f,  Heun p = %.2f,  RK4 p = %.2f\n\n', pOdh);
+
 % Graf chyb v logaritmickych souradnicich
 figure(3)
 loglog(hAll, e(:,1), 'o-', hAll, e(:,2), 's-', hAll(1:3), e(1:3,3), '^-', ...
